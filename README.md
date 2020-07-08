@@ -8,7 +8,7 @@ Built for sharing large datasets and streams of real time data as part of the [D
 npm install hypercore
 ```
 
-[![Build Status](https://travis-ci.org/mafintosh/hypercore.svg?branch=master)](https://travis-ci.org/mafintosh/hypercore)
+[![Build Status](https://travis-ci.org/hypercore-protocol/hypercore.svg?branch=master)](https://travis-ci.org/hypercore-protocol/hypercore)
 
 To learn more about how hypercore works on a technical level read the [Dat paper](https://github.com/datprotocol/whitepaper/blob/master/dat-paper.pdf).
 
@@ -119,7 +119,7 @@ Append a block of data to the feed.
 
 Callback is called with `(err, seq)` when all data has been written at the returned `seq` number or error will be not `null`.
 
-#### `feed.get(index, [options], callback)`
+#### `const id = feed.get(index, [options], callback)`
 
 Get a block of data.
 If the data is not available locally this method will prioritize and wait for the data to be downloaded before calling the callback.
@@ -129,6 +129,7 @@ Options include
 ``` js
 {
   wait: true, // wait for index to be downloaded
+  onwait: () => {}, // hook that is called if the get is waiting for download
   timeout: 0, // wait at max some milliseconds (0 means no timeout)
   valueEncoding: 'json' | 'utf-8' | 'binary' // defaults to the feed's valueEncoding
 }
@@ -148,6 +149,10 @@ Get a range of blocks efficiently. End index is non-inclusive. Options include
 }
 ```
 
+#### `feed.cancel(getId)`
+
+Cancel a pending get.
+
 #### `feed.head([options], callback)`
 
 Get the block of data at the tip of the feed. This will be the most recently
@@ -155,7 +160,7 @@ appended block.
 
 Accepts the same `options` as `feed.get()`.
 
-#### `feed.download([range], [callback])`
+#### `const id = feed.download([range], [callback])`
 
 Download a range of data. Callback is called when all data has been downloaded.
 A range can have the following properties:
@@ -181,7 +186,7 @@ If you have an array of blocks you want to get downloaded you also also pass tha
 }
 ```
 
-#### `feed.undownload(range)`
+#### `feed.undownload(downloadId)`
 
 Cancel a previous download request.
 
@@ -295,13 +300,21 @@ Options include:
   tail: false, // sets `start` to `feed.length`
   live: false, // set to true to keep reading forever
   timeout: 0, // timeout for each data event (0 means no timeout)
-  wait: true // wait for data to be downloaded
+  wait: true, // wait for data to be downloaded
+  batch: 1 // amount of messages to read in batch, increasing it (e.g. 100) can improve the performance reading
 }
 ```
 
-#### `var stream = feed.createWriteStream()`
+#### `var stream = feed.createWriteStream(opts)`
 
 Create a writable stream.
+Options include:
+
+```
+{
+  maxBlockSize: Infinity // set this to auto chunk individual blocks if they are larger than this number
+}
+```
 
 #### `var stream = feed.replicate(isInitiator, [options])`
 
@@ -360,7 +373,7 @@ Fully close this feed.
 
 Calls the callback with `(err)` when all storage has been closed.
 
-#### `feed.destroy([callback])`
+#### `feed.destroyStorage([callback])`
 
 Destroys all stored data and fully closes this feed.
 

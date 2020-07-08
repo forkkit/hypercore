@@ -31,12 +31,12 @@ tape('default storage works', function (t) {
 
 tape('destroying storage works', function (t) {
   const dir = path.join(__dirname, 'sandbox')
-  const feed = hypercore(dir, {overwrite: true})
+  const feed = hypercore(dir, { overwrite: true })
 
   feed.ready(function () {
     const key = feed.key
     t.ok(key, 'generated key')
-    feed.destroy(function () {
+    feed.destroyStorage(function () {
       t.pass('destroyed feed')
       const feed2 = hypercore(dir)
 
